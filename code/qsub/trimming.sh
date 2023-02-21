@@ -4,6 +4,7 @@
 #$ -o /users/abaud/komar/P50/allocoprophagy/output/logs/$JOB_NAME-$JOB_ID_$TASK_ID.out
 #$ -e /users/abaud/komar/P50/allocoprophagy/output/error/$JOB_NAME-$JOB_ID_$TASK_ID.err
 #$ -t 1-2
+#
 
 #Activate the qc environment
 conda activate qc
