@@ -1,0 +1,406 @@
+---
+title: "Host Reads Percentage vs covariates"
+author: "Kauthar Omar"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Loading RData file for plots
+
+```{r}
+# load('/users/abaud/komar/P50/allocoprophagy/output/metagenomes/counts/comp_tab_all_deep.RData')
+load("/users/abaud/komar/P50/allocoprophagy/output/metagenomes/counts/comp_tab_all_deep_new.RData")
+```
+
+### Proportion of host reads vs Material used
+
+```{r}
+#install.packages("viridis")
+library(viridis)
+palette <- viridis(4)
+
+comp_tab_all_deep_new$Material<- factor(comp_tab_all_deep_new$Material)
+
+boxplot(Proportion_Host_Reads ~ Material, data = comp_tab_all_deep_new,
+        col = palette,
+        main = "Box Plot of Host Read Percentage vs Material Used",
+        xlab = "Material Used",
+        ylab = "Host Reads Proportion (%)")
+
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("Cecal-Leftover", "Cecal-Squeezed"),c("Cecal-Squeezed", "Cecal-Whole"),
+                       c("Cecal-Leftover", "Cecal-Whole"), c("Cecal-Leftover", "Fecal"), 
+                       c("Cecal-Whole", "Fecal"),  c("Cecal-Squeezed", "Fecal"))
+
+ggboxplot(comp_tab_all_deep_new, x = "Material", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Tissue type",
+          xlab = "Tissue type", ylab = "Host Reads Proportion (%)",
+          color = "Material", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.1, jitter = 0.2)
+          ) +
+  #stat_compare_means(comparisons = my_comparisons)
+  stat_compare_means(comparisons = my_comparisons, label.y = c(65, 71, 77, 83, 89, 95))+stat_compare_means(label.y = 107)
+  #stat_compare_means(method="kruskal.test", comparisons = my_comparisons)
+#?stat_compare_means
+```
+
+### Proportion of host reads vs Fasting State
+
+```{r}
+
+#convert fasting state to factor
+comp_tab_all_deep_new$Fasting_state <- factor(comp_tab_all_deep_new$Fasting_state)
+
+library(viridis)
+palette <- viridis(2)
+
+boxplot(Proportion_Host_Reads ~ Fasting_state, data = comp_tab_all_deep_new,
+        col = palette,
+        main = "Box Plot of Host Read Percentage vs Fasting_state",
+        xlab = "Fasting state",
+        ylab = "Host Reads Proportion (%)")
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("Fasted", "Non-fasted"))
+
+ggboxplot(comp_tab_all_deep_new, x = "Fasting_state", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Fasting_stated",
+          xlab = "Fasting state", ylab = "Host Reads Proportion (%)",
+          color = "Fasting_state", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.1, jitter = 0.2)
+          ) +
+  stat_compare_means(comparisons = my_comparisons)
+  stat_compare_means(method="wilcox.test", comparisons = my_comparisons)
+
+```
+
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("Fasted", "Non-fasted"))
+
+ggboxplot(comp_tab_all_deep_new, x = "Fasting_state", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Fasting_stated",
+          xlab = "Fasting state", ylab = "Host Reads Proportion (%)",
+          color = "Fasting_state", palette = "jco",
+          label = "Sample",                # column containing point labels
+          label.select = list(top.up = 2),  # Select some labels to display
+          #label.select = list(top.up = 2, top.down = 2),
+          font.label = list(size = 9, face = "italic"),
+          add = "jitter",
+          add.params = list(size = 0.1, jitter = 0.2)
+          ) +
+  stat_compare_means(comparisons = my_comparisons)
+
+```
+
+![Metadata on sample 01267AAE ](/users/abaud/komar/P50/allocoprophagy/data/support_images/sample_01267AAE_metadata.png)
+
+![Metadata on sample 01271AAE ](/users/abaud/komar/P50/allocoprophagy/data/support_images/sample_0127AAE_metadata.png)
+
+* Maybe because it is a cecal leftover sample even though non-fasted has higher proportions (are two samples enough for this hypothesis)
+
+
+### Propotion of host reads vs Sex
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+#convert sex to factor
+comp_tab_all_deep_new$Sex <- factor(comp_tab_all_deep_new$Sex)
+
+my_comparisons <- list(c("Female", "Male"))
+
+ggboxplot(comp_tab_all_deep_new, x = "Sex", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Sex",
+          xlab = " Biological sex", ylab = "Host Reads Proportion (%)",
+          color = "Sex", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.2, jitter = 0.2)
+          ) +
+  #stat_compare_means(comparisons = my_comparisons)
+  #stat_compare_means(method="t.test", comparisons = my_comparisons)
+  stat_compare_means(method="wilcox.test", comparisons = my_comparisons)
+#Allowed methods are one of: t.test, t.test, t.test, wilcox.test, wilcox.test, wilcox.test, anova, anova, kruskal.test, kruskal.test
+```
+
+
+### Propotion of host reads vs Phenotyping centers
+
+```{r}
+#convert fasting state to factor
+comp_tab_all_deep_new$Phenotyping_center <- factor(comp_tab_all_deep_new$Phenotyping_center)
+
+#install.packages("RColorBrewer")
+library(RColorBrewer)
+# Qualitative palette with 4 colors
+palette <- brewer.pal(5, "Set1")
+
+boxplot(Proportion_Host_Reads ~ Phenotyping_center, data = comp_tab_all_deep_new,
+        col = palette,
+        main = "Box Plot of Host Read Percentage vs Phenotyping_center",
+        xlab = "Phenotyping Center",
+        ylab = "Host Reads Proportion (%)")
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("TN","CA"), c("NC", "NY"), c("TN","SC"), c("CA", "NC"),
+                       c("NY", "SC"), c("CA", "NY"), c("TN","NC") ,c("CA", "SC"),
+                       c("NC", "SC"), c("TN","NY"))
+
+ggboxplot(comp_tab_all_deep_new, x = "Phenotyping_center", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Sample Collection Center",
+          xlab = "Sample Collection Center", ylab = "Host Reads Proportion (%)",
+          color = "Phenotyping_center",# palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.1, jitter = 0.2)
+          ) +
+  #stat_compare_means(comparisons = my_comparisons)
+  # stat_compare_means(comparisons = my_comparisons, label.y = c(29, 33, 37, 41, 45, 49, 55, 59, 63, 67))+stat_compare_means(label.y = 69)
+  stat_compare_means(comparisons = my_comparisons, label.y = c(65, 71, 73, 77, 81, 85, 91, 97, 105, 110, 117))+stat_compare_means(label.y = 119)
+
+```
+
+
+```{r}
+
+library(ggplot2)
+library(ggpubr)
+
+ggboxplot(comp_tab_all_deep_new, x = "Material", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Material Used",
+          xlab = "Material Used", ylab = "Host Reads Proportion (%)",
+          color = "Material", palette = "jco", 
+          add = "jitter", facet.by = "Phenotyping_center",
+          add.params = list(size = 0.4, jitter = 0.2)
+          )
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+ggboxplot(comp_tab_all_deep_new, x = "Fasting_state", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Fasting_stated",
+          xlab = "Fasting state", ylab = "Host Reads Proportion (%)",
+          color = "Fasting_state", palette = "jco",
+          add = "jitter",facet.by = "Phenotyping_center",
+          add.params = list(size = 0.1, jitter = 0.2)
+          )
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+ggboxplot(comp_tab_all_deep_new, x = "Fasting_state", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Sex",
+          xlab = "Sex", ylab = "Host Reads Proportion (%)",
+          color = "Sex", palette = "jco",
+          add = "jitter",facet.by = "Phenotyping_center",
+          add.params = list(size = 0.1, jitter = 0.2)
+          )
+```
+
+```{r}
+load("/users/abaud/komar/P50/allocoprophagy/output/metagenomes/counts/comp_tab_date_vs_host_prop_shallow.RData") #data name is comp_tab_shallow
+
+load("/nfs/users/abaud/data/primary/P50/metadata/metadata_augmented_16S_metabo.RData")
+
+comp_tab_shallow$Dissection_date <- sapply(strsplit(as.character(comp_tab_shallow$Dissection_date), " "), "[", 1)
+
+comp_tab_shallow$Dissection_date <- as.Date(comp_tab_shallow$Dissection_date, format="%Y-%m-%d")
+
+comp_tab_shallow <- na.omit(comp_tab_shallow)
+#Subsetting only the columns I need from deep
+date_comp_tab_deep <- comp_tab_all_deep_new[c(1,2,9)]
+
+#renaming column name to match shallow data
+colnames(date_comp_tab_deep)[3]  <- "Proportion_Host_Reads"
+
+date_comp_tab_deep$Dissection_date <- as.Date(date_comp_tab_deep$Dissection_date, format="%d/%m/%Y")
+
+date_comp_tab_deep$Dissection_date <- format(as.Date(date_comp_tab_deep$Dissection_date), "%Y-%m-%d")
+
+#install.packages("lubridate")
+library(lubridate)
+
+# Convert the date format
+date_comp_tab_deep$Dissection_date <- parse_date_time(date_comp_tab_deep$Dissection_date, orders = "ymd", truncated = 2)
+
+# Format the date as "yyyy-mm-dd"
+date_comp_tab_deep$Dissection_date <- as.Date(date_comp_tab_deep$Dissection_date)
+
+#combining the two dataframes # not producing correct date look at it later
+deep_and_shallow_date_vs_hostreads <- rbind(date_comp_tab_deep, comp_tab_shallow)
+
+```
+
+
+Grouping dates into 3 based on change of protocal (both shallow and deep)
+```{r}
+deep_and_shallow_date_vs_hostreads$date_classification <- ifelse (deep_and_shallow_date_vs_hostreads$Dissection_date < as.Date("2019-04-1", format="%Y-%m-%d"), "Before April 2019",
+                                                                  ifelse (deep_and_shallow_date_vs_hostreads$Dissection_date == as.Date("2019-04-1", format="%Y-%m-%d"), "On April 2019", "After April 2019"))
+```
+
+
+Plotting Proportion of host reads vs Dissection date classification
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("Before April 2019", "After April 2019"))
+#deep_and_shallow_date_vs_hostreads$Proportion_Host_Reads
+
+
+ggboxplot(deep_and_shallow_date_vs_hostreads, x = "date_classification", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Dissection date",
+          xlab = "Dissection date", ylab = "Host Reads Proportion (%)",
+          color = "date_classification", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.2, jitter = 0.2)
+          ) +
+  stat_compare_means(comparisons = my_comparisons)
+```
+
+Grouping dates into 3 based on change of protocal(only shallow)
+```{r}
+comp_tab_shallow$date_classification <- ifelse (comp_tab_shallow$Dissection_date < as.Date("2019-04-01", format="%Y-%m-%d"), "Before April 2019", 
+                                                ifelse (comp_tab_shallow$Dissection_date == as.Date("2019-04-01", format="%Y-%m-%d"), "On April 2016", "After April 2019"))
+```
+
+
+Plotting Proportion of host reads vs Dissection date classification only in shallow data
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+my_comparisons <- list(c("Before April 2019", "After April 2019"))
+#deep_and_shallow_date_vs_hostreads$Proportion_Host_Reads
+
+
+ggboxplot(comp_tab_shallow, x = "date_classification", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Dissection date",
+          xlab = "Dissection date", ylab = "Host Reads Proportion (%)",
+          color = "date_classification", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.2, jitter = 0.2)
+          ) +
+  stat_compare_means(comparisons = my_comparisons)
+
+shapiro.test(na.omit(comp_tab_shallow$Proportion_Host_Reads))
+host_reads_shallow <- na.omit(comp_tab_shallow$Proportion_Host_Reads)
+
+hist(host_reads_shallow, main = "Distribution of Proportion of host reads", xlab = "Proportion of host reads (%)")
+
+library(ggpubr)
+
+# Create histogram
+
+gghistogram(host_reads_shallow, xlab = "Proportion of host reads (%)", ylab = "Frequency", bins = 10, fill = "steelblue", color = "black", border = "white", title = "Distribution of Proportion of host reads")
+
+ggplot(data.frame(x = host_reads_shallow), aes(x)) +
+  geom_histogram(fill = "steelblue", color = "black", bins = 10) +
+  labs(title = "Distribution of Proportion of host reads", x = "Proportion of host reads (%)", y = "Frequency")
+```
+The data has 847 data points
+```{r}
+ggplot(data.frame(x = comp_tab_all_deep_new$Proportion_Host_Reads), aes(x)) +
+  geom_histogram(fill = "steelblue", color = "black", bins = 100) +
+  labs(title = "Distribution of Proportion of host reads", x = "Proportion of host reads (%)", y = "Frequency")
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+
+favoured_deep <- comp_tab_all_deep_new[comp_tab_all_deep_new$Material == "Cecal-Leftover" & comp_tab_all_deep_new$Fasting_state == "Fasted" & comp_tab_all_deep_new$Phenotyping_center == "NY",] #  | comp_tab_all_deep_new$Material == "Cecal-Leftover" | comp_tab_all_deep_new$Phenotyping_center == "NY" | comp_tab_all_deep_new$Fasting_state == "Fasted" ,]
+
+comp_tab_shallow
+
+# Create a new column indicating the source data frame
+favoured_deep$Source <- "deep_shotgun_favourable_factors"
+comp_tab_shallow$Source <- "shallow-shotgun"
+
+# selecting matching columns in the 2 databases
+favoured_deep <- favoured_deep %>%
+  select(Sample, Proportion_Host_Reads, Source)
+
+comp_tab_shallow_compare <- comp_tab_shallow %>%
+  select(Sample, Proportion_Host_Reads, Source)
+
+# Combine the data frames
+favoured_deep_vs_shallow <- bind_rows(favoured_deep, comp_tab_shallow_compare)
+
+#convert source to factor
+favoured_deep_vs_shallow$Source <- factor(favoured_deep_vs_shallow$Source)
+
+ggboxplot(favoured_deep_vs_shallow, x = "Source", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Study",
+          xlab = "Study", ylab = "Host Reads Proportion (%)",
+          color = "Source", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.2, jitter = 0.2)
+          )
+
+# boxplot(comp_tab_all_deep_new$Proportion_Host_Reads, comp_tab_shallow$Proportion_Host_Reads)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+
+Deep_shotgun_shallow_mirror <- comp_tab_all_deep_new[comp_tab_all_deep_new$Material == "Cecal-Whole" & comp_tab_all_deep_new$Fasting_state == "Fasted" & comp_tab_all_deep_new$Phenotyping_center == "NY",] 
+
+Deep_shotgun_shallow_mirror <- comp_tab_all_deep_new[ comp_tab_all_deep_new$Fasting_state == "Fasted",]
+
+# Create a new column indicating the source data frame
+Deep_shotgun_shallow_mirror$Source <- "Deep-shotgun mirroring shallow"
+comp_tab_shallow$Source <- "shallow-shotgun"
+
+# selecting matching columns in the 2 databases
+Deep_shotgun_shallow_mirror <- Deep_shotgun_shallow_mirror %>%
+  select(Sample, Proportion_Host_Reads, Source)
+
+comp_tab_shallow_compare <- comp_tab_shallow %>%
+  select(Sample, Proportion_Host_Reads, Source)
+
+# Combine the data frames
+Deep_shotgun_shallow_mirror_vs_shallow <- bind_rows(Deep_shotgun_shallow_mirror, comp_tab_shallow_compare)
+
+#convert source to factor
+Deep_shotgun_shallow_mirror_vs_shallow$Source <- factor(Deep_shotgun_shallow_mirror_vs_shallow$Source)
+
+ggboxplot(Deep_shotgun_shallow_mirror_vs_shallow, x = "Source", y = "Proportion_Host_Reads",
+          title = "Box Plot of Host Read Percentage vs Study",
+          xlab = "Study", ylab = "Host Reads Proportion (%)",
+          color = "Source", palette = "jco",
+          add = "jitter",
+          add.params = list(size = 0.2, jitter = 0.2)
+          )
+
+```
